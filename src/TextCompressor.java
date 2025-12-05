@@ -33,6 +33,31 @@ public class TextCompressor {
 
         // TODO: Complete the compress() method
 
+        // Create a trie dictionary
+
+        // Put in the first 256 ASCII
+
+        // Read first character
+
+        // While there is stuff to read
+
+            // We have a chunk but need to look at next character
+
+            // If the dictionary has the chunk + character
+
+                // Extend chunk to include character
+
+            // Else we don't know this pattern
+
+                // Output the thing for what we did know which is the chunk
+
+                // Add the new pattern to dictionary
+
+                // Reset current chunk to include chunk + character
+
+        // Output code for the last chunk
+
+        // Close
         BinaryStdOut.close();
     }
 
