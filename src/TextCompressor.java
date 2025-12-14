@@ -25,46 +25,117 @@
  *  The {@code TextCompressor} class provides static methods for compressing
  *  and expanding natural language through textfile input.
  *
- *  @author Zach Blick, YOUR NAME HERE
+ *  @author Zach Blick, Deven Dharni
  */
+
+
+
 public class TextCompressor {
+    // Variable for initial ASCII
+    private static final int EOF = 128;
+
+    // Number of bits per code
+    private static final int bits = 10;
+
+    // Maximum number of codes to store in the TST
+    private static final int maximumNumCodes = 1024;
 
     private static void compress() {
+        // Read in full text
+        String text = BinaryStdIn.readString();
 
-        // TODO: Complete the compress() method
+        // Create TST for storage
+        TST wordBank = new TST();
 
-        // Create a trie dictionary
+        // Add all the initial characters to TST
+        for (int i = 0; i < EOF; i++) {
+            char character = (char) i;
+            wordBank.insert("" + character, i);
+        }
 
-        // Put in the first 256 ASCII
+        // Add one to save 128/hexadecimal 80 for EOF
+        int nextValue = EOF + 1;
+        int currentIndex = 0;
 
-        // Read first character
+        while (currentIndex < text.length()) {
+            // Find the largest prefix match
+            String prefix = wordBank.getLongestPrefix(text, currentIndex);
 
-        // While there is stuff to read
+            // Get the code for that prefix and write it out
+            int code = wordBank.lookup(prefix);
+            BinaryStdOut.write(code, bits);
 
-            // We have a chunk but need to look at next character
+            int positionOfNextCharacter = currentIndex + prefix.length();
 
-            // If the dictionary has the chunk + character
+            // Add another code if we have space in TST
+            if (positionOfNextCharacter < text.length() && nextValue < maximumNumCodes) {
+                char characterToAdd = text.charAt(positionOfNextCharacter);
+                wordBank.insert(prefix + characterToAdd, nextValue);
+                nextValue++;
+            }
 
-                // Extend chunk to include character
+            // Increment by the right size
+            currentIndex += prefix.length();
+        }
 
-            // Else we don't know this pattern
-
-                // Output the thing for what we did know which is the chunk
-
-                // Add the new pattern to dictionary
-
-                // Reset current chunk to include chunk + character
-
-        // Output code for the last chunk
-
-        // Close
+        // Write the end of file
+        BinaryStdOut.write(EOF, bits);
         BinaryStdOut.close();
     }
 
     private static void expand() {
+        // Create an array of codes of set size
+        String[] currentCodes = new String[maximumNumCodes];
 
-        // TODO: Complete the expand() method
+        // Add all the initial characters to TST
+        for (int i = 0; i < EOF; i++) {
+            char character = (char) i;
+            currentCodes[i] = "" + character;
+        }
 
+        // Add one to save 128/hexadecimal 80 for EOF
+        int nextValue = EOF + 1;
+
+        // Read the first 8 bits for the int
+        int code = BinaryStdIn.readInt(bits);
+
+        // Add the first code to the prefix that has already been decoded
+        String prefix = currentCodes[code];
+        BinaryStdOut.write(prefix);
+
+        // Keep a constant loop until break
+        while (true) {
+            // Read in another 8 bits
+            code = BinaryStdIn.readInt(bits);
+
+            // Base case
+            if (code == EOF) {
+                break;
+            }
+
+            String current = "";
+
+            // Normal case
+            if (currentCodes[code] != null) {
+                current = currentCodes[code];
+            }
+            // Edge case, reading in a code that doesn't yet exist
+            else {
+                // Know what compressor added and what prefix was
+                current = prefix + prefix.charAt(0);
+            }
+
+            BinaryStdOut.write(current);
+
+            // Add the next dictionary value
+            if (nextValue < maximumNumCodes) {
+                // Add the next character
+                currentCodes[nextValue] = prefix + current.charAt(0);
+                nextValue++;
+            }
+
+            prefix = current;
+        }
         BinaryStdOut.close();
     }
 
