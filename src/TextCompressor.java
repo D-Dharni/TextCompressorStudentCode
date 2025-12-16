@@ -28,8 +28,6 @@
  *  @author Zach Blick, Deven Dharni
  */
 
-
-
 public class TextCompressor {
     // Variable for initial ASCII
     private static final int EOF = 128;
@@ -44,16 +42,16 @@ public class TextCompressor {
         // Read in full text
         String text = BinaryStdIn.readString();
 
-        // Create TST for storage
+        // Create TST for storage of unique codes
         TST wordBank = new TST();
 
-        // Add all the initial characters to TST
+        // Add all the initial ASCII characters to TST
         for (int i = 0; i < EOF; i++) {
             char character = (char) i;
             wordBank.insert("" + character, i);
         }
 
-        // Add one to save 128/hexadecimal 80 for EOF
+        // Add one to save 128/80 hexadecimal for EOF
         int nextValue = EOF + 1;
         int currentIndex = 0;
 
@@ -134,6 +132,7 @@ public class TextCompressor {
                 nextValue++;
             }
 
+            // Update the prefix
             prefix = current;
         }
         BinaryStdOut.close();
